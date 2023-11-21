@@ -20,6 +20,7 @@ import java.util.List;
 public class SwaggerParserServiceExcel {
 
     public void writeSwaggerInfoToExcel(String directoryPath, String outputPath) {
+        //ultimos cambios 117
         try (Workbook workbook = new XSSFWorkbook()) {
             Sheet sheet = workbook.createSheet("Swagger Info");
             List<String> pathsList = new ArrayList<>();
@@ -29,6 +30,7 @@ public class SwaggerParserServiceExcel {
             headerRow.createCell(1).setCellValue("BasePath");
             headerRow.createCell(2).setCellValue("Path");
             headerRow.createCell(3).setCellValue("UniqueBasepath");
+            headerRow.createCell(4).setCellValue("path2");
 
             File directory = new File(directoryPath);
 
@@ -46,10 +48,8 @@ public class SwaggerParserServiceExcel {
                     int aux=0;
                     for (String path : paths.keySet()) {
                         aux++;
-                        Row row = sheet.createRow(rowNum++);
-                        row.createCell(0).setCellValue(title);
-                        row.createCell(1).setCellValue(basePath);
-                        row.createCell(2).setCellValue(path);
+
+
                         pathsList.add(path);
 
 
@@ -59,7 +59,50 @@ public class SwaggerParserServiceExcel {
                             if (result.equals("/")){
                                 result="requiere UID";
                             }
-                            row.createCell(3).setCellValue(removeTrailingSlash(result));
+
+                            int aux2=0;
+                            for(int i=0;i<aux;i++){
+                                aux2++;
+                                if (aux2!=aux) {
+                                    if (result.equals("requiere UID")) {
+                                        Row row = sheet.createRow(rowNum++);
+                                        row.createCell(0).setCellValue(title);
+                                        row.createCell(1).setCellValue(basePath);
+                                        row.createCell(2).setCellValue(pathsList.get(i));
+                                        row.createCell(3).setCellValue("");
+                                        row.createCell(4).setCellValue(extractSubstring(pathsList.get(i), result));
+
+                                    } else {
+                                       // System.out.println("path: " + pathsList.get(i) + " result: " + result);
+                                        Row row = sheet.createRow(rowNum++);
+                                        row.createCell(0).setCellValue(title);
+                                        row.createCell(1).setCellValue(basePath);
+                                        row.createCell(2).setCellValue(pathsList.get(i));
+                                        row.createCell(3).setCellValue("");
+                                        row.createCell(4).setCellValue("/" + extractSubstring(pathsList.get(i), result));
+                                    }
+                                }else{
+                                    if (result.equals("requiere UID")) {
+                                        Row row = sheet.createRow(rowNum++);
+                                        row.createCell(0).setCellValue(title);
+                                        row.createCell(1).setCellValue(basePath);
+                                        row.createCell(2).setCellValue(pathsList.get(i));
+                                        row.createCell(3).setCellValue(result);
+                                        row.createCell(4).setCellValue(extractSubstring(pathsList.get(i), result));
+
+                                    } else {
+                                       // System.out.println("path: " + pathsList.get(i) + " result: " + result);
+                                        Row row = sheet.createRow(rowNum++);
+                                        row.createCell(0).setCellValue(title);
+                                        row.createCell(1).setCellValue(basePath);
+                                        row.createCell(2).setCellValue(pathsList.get(i));
+                                        row.createCell(3).setCellValue(removeTrailingSlash(result));
+                                        row.createCell(4).setCellValue("/" + extractSubstring(pathsList.get(i), result));
+                                    }
+
+                                }
+                            }
+
 
 
                         }else{
@@ -160,5 +203,12 @@ public class SwaggerParserServiceExcel {
         }
         return input;
     }
+
+        public static String extractSubstring(String input, String prefix) {
+            if (input != null && input.startsWith(prefix)) {
+                return input.substring(prefix.length());
+            }
+            return input;
+        }
 
 }
